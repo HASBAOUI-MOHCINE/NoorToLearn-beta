@@ -1,16 +1,23 @@
-import React from 'react'
-import { FiHome, FiBookOpen, FiTrendingUp, FiUser } from 'react-icons/fi'
+import React, { useState } from 'react'
+import { FiHome, FiBookOpen, FiTrendingUp, FiUser, FiMenu, FiX } from 'react-icons/fi'
 import ThemeToggle from './ThemeToggle'
 import LanguageSwitcher from './LanguageSwitcher'
 import logo from '../logo/logo.jpeg'
 
 export default function Navbar({ section, setSection, t, isDark, setIsDark, lang, setLang }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
   const navItems = [
     { id: 'overview', label: t('Overview'), icon: FiHome },
     { id: 'courses', label: t('Courses'), icon: FiBookOpen },
     { id: 'progress', label: t('Progress'), icon: FiTrendingUp },
     { id: 'profile', label: t('Profile'), icon: FiUser }
   ]
+
+  const handleNavClick = (id) => {
+    setSection(id)
+    setMobileMenuOpen(false)
+  }
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 border-b shadow-sm backdrop-blur-sm ${isDark ? 'bg-[#1a1714]/95 border-noor-700' : 'bg-white/95 border-stone-200'}`}>
@@ -31,8 +38,8 @@ export default function Navbar({ section, setSection, t, isDark, setIsDark, lang
             </h1>
           </button>
 
-          {/* Navigation Buttons */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-2">
             {navItems.map((item) => {
               const Icon = item.icon
               return (
@@ -56,30 +63,67 @@ export default function Navbar({ section, setSection, t, isDark, setIsDark, lang
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">
-            <ThemeToggle isDark={isDark} setIsDark={setIsDark} />
-            <LanguageSwitcher lang={lang} setLang={setLang} isDark={isDark} />
+            <div className="hidden sm:flex items-center gap-2">
+              <ThemeToggle isDark={isDark} setIsDark={setIsDark} />
+              <LanguageSwitcher lang={lang} setLang={setLang} isDark={isDark} />
+            </div>
+            
+            {/* Hamburger Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`lg:hidden p-2 rounded-lg transition-all ${
+                isDark ? 'hover:bg-noor-800 text-noor-500' : 'hover:bg-stone-100 text-stone-600'
+              }`}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <FiX className="text-2xl" /> : <FiMenu className="text-2xl" />}
+            </button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        <div className="md:hidden pb-3 flex gap-2 overflow-x-auto scrollbar-hide">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setSection(item.id)}
-              className={`flex-shrink-0 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-                section === item.id
-                  ? 'bg-gradient-to-r from-noor-500 to-noor-600 text-white shadow-md'
-                  : isDark
-                    ? 'text-noor-500 hover:bg-noor-800'
-                    : 'text-stone-600 hover:bg-stone-100'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
       </div>
+
+      {/* Mobile Dropdown Menu */}
+      {mobileMenuOpen && (
+        <div 
+          className={`lg:hidden absolute top-16 left-0 right-0 shadow-lg border-t animate-slideDown ${
+            isDark ? 'bg-noor-800 border-noor-700' : 'bg-white border-stone-200'
+          }`}
+          style={{
+            animation: 'slideDown 0.3s ease-out'
+          }}
+        >
+          <div className="p-4 space-y-2">
+            {/* Mobile Settings */}
+            <div className={`sm:hidden flex items-center justify-center gap-3 pb-3 mb-3 border-b ${
+              isDark ? 'border-noor-700' : 'border-stone-200'
+            }`}>
+              <ThemeToggle isDark={isDark} setIsDark={setIsDark} />
+              <LanguageSwitcher lang={lang} setLang={setLang} isDark={isDark} />
+            </div>
+
+            {/* Navigation Items */}
+            {navItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all ${
+                    section === item.id
+                      ? 'bg-gradient-to-r from-noor-500 to-noor-600 text-white shadow-lg'
+                      : isDark
+                        ? 'text-noor-500 hover:bg-noor-700'
+                        : 'text-stone-600 hover:bg-stone-100'
+                  }`}
+                >
+                  <Icon className="text-xl" />
+                  <span>{item.label}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </nav>
   )
 }
